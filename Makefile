@@ -1,7 +1,7 @@
 .PHONY: default build builder-image binary-image test stop clean-images clean push apply deploy release release-all manifest push clean-image
 
 OS ?= linux
-ARCH ?= ???
+ARCH ?= amd64
 ALL_ARCH ?= arm64 arm amd64
 
 BUILDER ?= forecastle-builder

@@ -3,11 +3,13 @@ WORKDIR /usr/src/app
 COPY ./frontend ./
 RUN yarn install --network-timeout 1000000 && yarn build
 
-# Build the manager binary
-FROM --platform=${BUILDPLATFORM} golang:1.17.2 as builder
+ARG BUILDPLATFORM=amd64
 
-ARG TARGETOS
-ARG TARGETARCH
+# Build the manager binary
+FROM --platform=amd64 golang:1.17.2 as builder
+
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
 
 RUN mkdir -p "$GOPATH/src/github.com/stakater/Forecastle"
 
@@ -31,9 +33,14 @@ RUN mkdir -p /tmp/packr/ && \
 COPY --from=build-deps /usr/src/app/build ./frontend/build/
 
 # Build
-RUN go mod download && \
-    CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GO111MODULE=on packr2 build -a --installsuffix cgo --ldflags="-s" -o /Forecastle && \
-    packr2 clean
+RUN go mod download 
+RUN go mod tidy
+ENV CGO_ENABLED=0 
+ENV GOOS=${TARGETOS} 
+ENV GOARCH=${TARGETARCH} 
+ENV GO111MODULE=on 
+RUN packr2 build -a --installsuffix cgo --ldflags="-s" -o /Forecastle 
+RUN packr2 clean
 
 # Use distroless as minimal base image to package the Forecastle binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details

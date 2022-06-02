@@ -12,11 +12,11 @@ import (
 func byForecastleExposeAnnotation(ingress v1.Ingress, appConfig config.Config) bool {
 	if val, ok := ingress.Annotations[annotations.ForecastleExposeAnnotation]; ok {
 		// Has Forecastle annotation and is exposed
-		if val == "true" {
+		if val != "false" {
 			return true
 		}
 	}
-	return false
+	return true
 }
 
 // For filtering ingresses by forecastle instance
